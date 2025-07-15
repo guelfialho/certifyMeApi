@@ -1,44 +1,41 @@
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import { Request, Response } from "express";
-import * as UsuarioRepo from "../repositories/usuarios.repository";
+import UsuariosRepository from "../repositories/usuarios.repository";
 
-export async function cadastrarUsuario(req: Request, res: Response) {
-  const { nome, email, senha, tipo } = req.body;
-  if (!nome || !email || !senha || !tipo) {
-    return res
-      .status(400)
-      .json({ sucesso: false, mensagem: "Campos obrigatórios ausentes." });
-  }
+dotenv.config();
 
-  try {
-    const usuario = await UsuarioRepo.criarUsuario(nome, email, senha, tipo);
-    return res.json({
-      sucesso: true,
-      mensagem: "Cadastro realizado com sucesso",
-      usuario,
-    });
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(500)
-      .json({ sucesso: false, mensagem: "Erro no servidor." });
-  }
-}
-
-export async function loginUsuario(req: Request, res: Response) {
+async function loginUsuario(req: Request, res: Response) {
   const { email, senha } = req.body;
+
   if (!email || !senha) {
     return res
       .status(400)
       .json({ sucesso: false, mensagem: "Email e senha são obrigatórios." });
   }
 
-  const usuario = await UsuarioRepo.buscarPorEmailSenha(email, senha);
+  const usuario = await UsuariosRepository.buscarPorEmailSenha(email, senha);
   if (usuario) {
+    const token = jwt.sign(
+      {
+        uuid: usuario.uuid,
+        tipo: usuario.tipo,
+        nome: usuario.nome,
+        email: usuario.email,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1d" }
+    );
+
     return res.json({
       sucesso: true,
       mensagem: "Login bem-sucedido!",
-      tipo: usuario.tipo,
-      uuid: usuario.uuid,
+      token,
+      usuario: {
+        uuid: usuario.uuid,
+        nome: usuario.nome,
+        tipo: usuario.tipo,
+      },
     });
   } else {
     return res
@@ -46,3 +43,31 @@ export async function loginUsuario(req: Request, res: Response) {
       .json({ sucesso: false, mensagem: "Email ou senha inválidos." });
   }
 }
+
+async function cadastrarUsuario(req: Request, res: Response) {
+  const { nome, email, senha, tipo } = req.body;
+
+  if (!nome || !email || !senha || !tipo) {
+    return res
+      .status(400)
+      .json({ sucesso: false, mensagem: "Todos os campos são obrigatórios." });
+  }
+
+  const criado = await UsuariosRepository.criarUsuario({
+    nome,
+    email,
+    senha,
+    tipo,
+  });
+
+  return res.status(201).json({
+    sucesso: true,
+    mensagem: "Usuário criado com sucesso.",
+    usuario: criado,
+  });
+}
+
+export default {
+  loginUsuario,
+  cadastrarUsuario,
+};

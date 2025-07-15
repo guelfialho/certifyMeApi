@@ -1,11 +1,16 @@
 import { Router } from "express";
-import * as UsuarioController from "../controllers/usuarios.controller";
-// (Importar os outros controllers em seguida...)
+import UsuarioController from "../controllers/usuarios.controller";
+import autenticarToken from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// Usuários
-router.post("/usuarios", UsuarioController.cadastrarUsuario);
+// Rota pública
 router.post("/login", UsuarioController.loginUsuario);
+router.post("/usuarios/cadastro", UsuarioController.cadastrarUsuario);
+
+// Rota protegida
+router.get("/protegida", autenticarToken, (req, res) => {
+  res.json({ mensagem: "Você acessou uma rota protegida!" });
+});
 
 export default router;
