@@ -1,4 +1,5 @@
 import { db } from "../db";
+import { Usuario } from "../types/usuario.types";
 
 interface ICriarUsuario {
   nome: string;
@@ -20,7 +21,10 @@ async function criarUsuario(params: ICriarUsuario) {
   return rows[0];
 }
 
-async function buscarPorEmailSenha(email: string, senha: string) {
+async function buscarPorEmailSenha(
+  email: string,
+  senha: string
+): Promise<Usuario | undefined> {
   const query = `
     SELECT
       id,
@@ -31,7 +35,7 @@ async function buscarPorEmailSenha(email: string, senha: string) {
     WHERE email = $1 AND senha = $2 AND deletado_em IS NULL
   `;
   const { rows } = await db.query(query, [email, senha]);
-  return rows[0];
+  return rows[0] as Usuario | undefined;
 }
 
 export default {

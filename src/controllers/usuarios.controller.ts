@@ -18,7 +18,7 @@ async function loginUsuario(req: Request, res: Response) {
   if (usuario) {
     const token = jwt.sign(
       {
-        uuid: usuario.uuid,
+        id: usuario.id,
         tipo: usuario.tipo,
         nome: usuario.nome,
         email: usuario.email,
@@ -32,7 +32,7 @@ async function loginUsuario(req: Request, res: Response) {
       mensagem: "Login bem-sucedido!",
       token,
       usuario: {
-        uuid: usuario.uuid,
+        id: usuario.id,
         nome: usuario.nome,
         tipo: usuario.tipo,
       },
