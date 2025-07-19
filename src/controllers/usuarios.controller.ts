@@ -60,11 +60,13 @@ async function cadastrarUsuario(req: Request, res: Response) {
     tipo,
   });
 
-  return res.status(201).json({
+  const response = {
     sucesso: true,
     mensagem: "Usuário criado com sucesso.",
     usuario: criado,
-  });
+  };
+
+  return res.status(201).json(response);
 }
 
 export default {

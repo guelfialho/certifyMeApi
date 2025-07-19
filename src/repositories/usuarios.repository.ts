@@ -5,7 +5,7 @@ interface ICriarUsuario {
   nome: string;
   email: string;
   senha: string;
-  tipo: string;
+  tipo: "ESTUDANTE" | "ORGANIZADOR";
 }
 
 async function criarUsuario(params: ICriarUsuario) {
