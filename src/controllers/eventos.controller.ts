@@ -3,21 +3,47 @@ import EventosRepository from "../repositories/eventos.repository";
 import { getLoggedUser } from "../utils/auth.utils";
 
 async function criarEvento(req: Request, res: Response) {
-  const { titulo, descricao, data, organizador_id } = req.body;
+  try {
+    const usuario = getLoggedUser(req);
 
-  if (!titulo || !data || !organizador_id) {
-    return res.status(400).json({ mensagem: "Campos obrigatórios ausentes." });
+    const { titulo, descricao, data } = req.body;
+
+    if (!titulo || !data) {
+      return res.status(400).json({
+        sucesso: false,
+        mensagem: "Campos obrigatórios ausentes: título e data.",
+        evento: null,
+      });
+    }
+
+    const evento = await EventosRepository.criarEvento({
+      titulo,
+      descricao,
+      data,
+      organizador_id: usuario.id,
+    });
+
+    if (!evento) {
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: "Erro ao criar o evento.",
+        evento: null,
+      });
+    }
+
+    return res.status(201).json({
+      sucesso: true,
+      mensagem: "Evento criado com sucesso",
+      evento: evento,
+    });
+  } catch (error: any) {
+    console.error("Erro no criarEvento:", error);
+    return res.status(500).json({
+      sucesso: false,
+      mensagem: error.message || "Erro interno no servidor.",
+      evento: null,
+    });
   }
-
-  const evento = await EventosRepository.criarEvento({
-    titulo,
-    descricao,
-    data,
-    organizador_id,
-  });
-  return res
-    .status(201)
-    .json({ mensagem: "Evento criado com sucesso", evento });
 }
 
 async function listarEventos(_: Request, res: Response) {

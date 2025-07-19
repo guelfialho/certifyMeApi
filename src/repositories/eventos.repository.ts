@@ -4,11 +4,26 @@ async function criarEvento({ titulo, descricao, data, organizador_id }: any) {
   const query = `
     INSERT INTO eventos (titulo, descricao, data, organizador_id)
     VALUES ($1, $2, $3, $4)
-    RETURNING *
+    RETURNING id, titulo, descricao, data, organizador_id
   `;
   const values = [titulo, descricao, data, organizador_id];
   const { rows } = await db.query(query, values);
-  return rows[0];
+
+  const evento = rows[0];
+
+  const organizadorQuery = `SELECT nome FROM usuarios WHERE id = $1`;
+
+  const { rows: orgRows } = await db.query(organizadorQuery, [
+    evento.organizador_id,
+  ]);
+
+  return {
+    id: evento.id,
+    titulo: evento.titulo,
+    descricao: evento.descricao,
+    data: evento.data,
+    organizador: orgRows[0]?.nome || "Organizador desconhecido",
+  };
 }
 
 async function listarEventos() {
