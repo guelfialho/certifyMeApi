@@ -12,7 +12,19 @@ async function criarEvento({ titulo, descricao, data, organizador_id }: any) {
 }
 
 async function listarEventos() {
-  const query = `SELECT * FROM eventos WHERE deletado_em IS NULL ORDER BY data`;
+  const query = `
+    SELECT
+      e.id,
+      e.titulo,
+      e.descricao,
+      e.data,
+      u.nome AS organizador
+    FROM eventos e
+    JOIN usuarios u ON e.organizador_id = u.id
+    WHERE e.deletado_em IS NULL
+    ORDER BY e.data
+  `;
+
   const { rows } = await db.query(query);
   return rows;
 }
