@@ -25,6 +25,37 @@ async function listarEventos(_: Request, res: Response) {
   return res.json(eventos);
 }
 
+async function listarEventosPorOrganizador(req: Request, res: Response) {
+  try {
+    console.log("Entrei na listar eventos por organizador");
+    const usuario = getLoggedUser(req);
+
+    if (usuario.tipo !== "ORGANIZADOR") {
+      return res.status(403).json({
+        sucesso: false,
+        mensagem: "Apenas organizadores podem listar seus eventos.",
+      });
+    }
+
+    const eventos = await EventosRepository.listarEventosPorOrganizador(
+      usuario.id
+    );
+
+    const response = {
+      sucesso: true,
+      eventos,
+    };
+
+    return res.json(response);
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).json({
+      sucesso: false,
+      mensagem: e.message || "Erro ao listar eventos do organizador.",
+    });
+  }
+}
+
 async function inscreverNoEvento(req: Request, res: Response) {
   try {
     const usuario = getLoggedUser(req);
@@ -63,4 +94,5 @@ export default {
   criarEvento,
   listarEventos,
   inscreverNoEvento,
+  listarEventosPorOrganizador,
 };

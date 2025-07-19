@@ -11,6 +11,11 @@ router.post("/login", UsuarioController.loginUsuario);
 router.post("/usuarios/cadastro", UsuarioController.cadastrarUsuario);
 
 router.get("/eventos", autenticarToken, EventosController.listarEventos);
+router.get(
+  "/eventos/organizador",
+  autenticarToken,
+  EventosController.listarEventosPorOrganizador
+);
 router.post("/eventos", autenticarToken, EventosController.criarEvento);
 router.post(
   "/eventos/inscricao",

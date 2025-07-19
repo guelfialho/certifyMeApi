@@ -29,6 +29,24 @@ async function listarEventos() {
   return rows;
 }
 
+async function listarEventosPorOrganizador(organizadorId: string) {
+  const query = `
+    SELECT
+      e.id,
+      e.titulo,
+      e.descricao,
+      e.data,
+      u.nome AS organizador
+    FROM eventos e
+    JOIN usuarios u ON e.organizador_id = u.id
+    WHERE e.deletado_em IS NULL AND e.organizador_id = $1
+    ORDER BY e.data
+  `;
+
+  const { rows } = await db.query(query, [organizadorId]);
+  return rows;
+}
+
 async function inscreverEstudante(eventoId: string, estudanteId: string) {
   const client = await db.connect();
 
@@ -64,4 +82,5 @@ export default {
   criarEvento,
   listarEventos,
   inscreverEstudante,
+  listarEventosPorOrganizador,
 };
