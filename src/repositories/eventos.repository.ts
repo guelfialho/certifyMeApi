@@ -17,7 +17,39 @@ async function listarEventos() {
   return rows;
 }
 
+async function inscreverEstudante(eventoId: string, estudanteId: string) {
+  const client = await db.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Insere na tabela de presenças
+    await client.query(
+      `INSERT INTO presencas (evento_id, estudante_id)
+       VALUES ($1, $2)
+       ON CONFLICT (evento_id, estudante_id) DO NOTHING`,
+      [eventoId, estudanteId]
+    );
+
+    // Insere na tabela de certificados
+    await client.query(
+      `INSERT INTO certificados (evento_id, estudante_id)
+       VALUES ($1, $2)
+       ON CONFLICT (evento_id, estudante_id) DO NOTHING`,
+      [eventoId, estudanteId]
+    );
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 export default {
   criarEvento,
   listarEventos,
+  inscreverEstudante,
 };

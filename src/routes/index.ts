@@ -12,16 +12,21 @@ router.post("/usuarios/cadastro", UsuarioController.cadastrarUsuario);
 
 router.get("/eventos", autenticarToken, EventosController.listarEventos);
 router.post("/eventos", autenticarToken, EventosController.criarEvento);
+router.post(
+  "/eventos/inscricao",
+  autenticarToken,
+  EventosController.inscreverNoEvento
+);
 
 router.post(
   "/presencas",
   autenticarToken,
   PresencasController.registrarPresenca
 );
-router.post(
+router.get(
   "/certificados",
   autenticarToken,
-  CertificadosController.emitirCertificado
+  CertificadosController.listarCertificadosDoEstudante
 );
 
 router.get("/protegida", autenticarToken, (req, res) => {

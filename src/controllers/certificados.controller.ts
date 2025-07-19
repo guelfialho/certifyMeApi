@@ -1,22 +1,23 @@
 import { Request, Response } from "express";
 import CertificadosRepository from "../repositories/certificados.repository";
+import { getLoggedUser } from "../utils/auth.utils";
 
-async function emitirCertificado(req: Request, res: Response) {
-  const { evento_id, estudante_id } = req.body;
+async function listarCertificadosDoEstudante(req: Request, res: Response) {
+  try {
+    const usuario = getLoggedUser(req);
 
-  if (!evento_id || !estudante_id) {
-    return res.status(400).json({ mensagem: "Campos obrigatórios ausentes." });
+    if (usuario.tipo !== "ESTUDANTE") {
+      return res
+        .status(403)
+        .json({ sucesso: false, mensagem: "Acesso negado." });
+    }
+
+    const lista = await CertificadosRepository.listarPorEstudante(usuario.id);
+    return res.json({ sucesso: true, certificados: lista });
+  } catch (e: any) {
+    console.error(e);
+    return res.status(401).json({ sucesso: false, mensagem: e.message });
   }
-
-  const cert = await CertificadosRepository.emitirCertificado(
-    evento_id,
-    estudante_id
-  );
-  return res
-    .status(201)
-    .json({ mensagem: "Certificado emitido.", certificado: cert });
 }
 
-export default {
-  emitirCertificado,
-};
+export default { listarCertificadosDoEstudante };
