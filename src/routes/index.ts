@@ -26,7 +26,7 @@ router.post(
 router.post(
   "/presencas",
   autenticarToken,
-  PresencasController.registrarPresenca
+  PresencasController.confirmarPresenca
 );
 router.get(
   "/certificados",

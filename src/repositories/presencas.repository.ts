@@ -1,15 +1,36 @@
 import { db } from "../db";
 
-async function registrarPresenca(evento_id: string, estudante_id: string) {
-  const query = `
-    INSERT INTO presencas (evento_id, estudante_id)
-    VALUES ($1, $2)
-    RETURNING *
-  `;
-  const { rows } = await db.query(query, [evento_id, estudante_id]);
-  return rows[0];
+class PresencasRepository {
+  /**
+   * Atualiza o status 'confirmada' de uma presença para TRUE,
+   * buscando pela combinação de evento_id e estudante_id.
+   *
+   * @param eventoId O UUID do evento.
+   * @param estudanteId O UUID do estudante.
+   * @returns Retorna a presença atualizada ou null se não encontrada/atualizada.
+   */
+  async confirmarPresenca(eventoId: string, estudanteId: string) {
+    try {
+      const result = await db.query(
+        `
+        UPDATE presencas
+        SET confirmada = TRUE, atualizado_em = NOW()
+        WHERE evento_id = $1 AND estudante_id = $2 AND deletado_em IS NULL
+        RETURNING *;
+        `,
+        [eventoId, estudanteId]
+      );
+
+      if (result && result.rowCount && result.rowCount > 0) {
+        return result.rows[0]; // Retorna a presença atualizada
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Erro ao confirmar presença:", error);
+      throw new Error("Não foi possível confirmar a presença.");
+    }
+  }
 }
 
-export default {
-  registrarPresenca,
-};
+export default new PresencasRepository();

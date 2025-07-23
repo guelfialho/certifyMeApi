@@ -1,3 +1,9 @@
+-- Limpa os dados existentes para evitar duplicação
+TRUNCATE TABLE presencas RESTART IDENTITY CASCADE;
+TRUNCATE TABLE certificados RESTART IDENTITY CASCADE;
+TRUNCATE TABLE eventos RESTART IDENTITY CASCADE;
+TRUNCATE TABLE usuarios RESTART IDENTITY CASCADE;
+
 -- Insere organizador
 INSERT INTO usuarios (nome, email, senha, tipo)
 VALUES ('Organizador UFBA', 'org@ufba.br', '1234', 'ORGANIZADOR')

@@ -2,7 +2,12 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Tipo ENUM para contas
-CREATE TYPE tipo_conta AS ENUM ('ESTUDANTE', 'ORGANIZADOR');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'tipo_conta') THEN
+    CREATE TYPE tipo_conta AS ENUM ('ESTUDANTE', 'ORGANIZADOR');
+  END IF;
+END$$;
 
 -- Tabela de usuários
 CREATE TABLE IF NOT EXISTS usuarios (
